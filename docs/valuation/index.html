@@ -1,0 +1,955 @@
+<title>What Did Ratcliffe Bet On?</title>
+<meta name="description" content="Interactive Monte Carlo valuation of Manchester United, where simulated league seasons drive the cash flows, set against the INEOS entry price.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #eef1ed;
+  --surface: #fafbf9;
+  --ink: #16201a;
+  --ink-2: #4a574f;
+  --muted: #7f8a83;
+  --line: #dde3de;
+  --grid: #e6ebe7;
+  --band: #d9dfda;
+  --accent: #eb6834;
+  --accent-soft: #fbe3d8;
+  --focus: #2a78d6;
+  --sc-0: #86b6ef;
+  --sc-1: #2a78d6;
+  --sc-2: #104281;
+  --fin-0: #0d366b;
+  --fin-1: #1c5cab;
+  --fin-2: #3987e5;
+  --fin-3: #86b6ef;
+  --pill-ucl: #104281;
+  --pill-ucl-ink: #ffffff;
+  --pill-uel: #d9e7f8;
+  --pill-uel-ink: #16325a;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1310;
+    --surface: #151b17;
+    --ink: #e7ece8;
+    --ink-2: #b2bcb5;
+    --muted: #7c877f;
+    --line: #28312b;
+    --grid: #202822;
+    --band: #2a332d;
+    --accent: #f07a4a;
+    --accent-soft: #3a2219;
+    --focus: #5598e7;
+    --sc-0: #1c5cab;
+    --sc-1: #5598e7;
+    --sc-2: #b7d3f6;
+    --fin-0: #b7d3f6;
+    --fin-1: #6da7ec;
+    --fin-2: #2a78d6;
+    --fin-3: #184f95;
+    --pill-ucl: #b7d3f6;
+    --pill-ucl-ink: #0d1f36;
+    --pill-uel: #1f3550;
+    --pill-uel-ink: #cfe0f6;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1310;
+  --surface: #151b17;
+  --ink: #e7ece8;
+  --ink-2: #b2bcb5;
+  --muted: #7c877f;
+  --line: #28312b;
+  --grid: #202822;
+  --band: #2a332d;
+  --accent: #f07a4a;
+  --accent-soft: #3a2219;
+  --focus: #5598e7;
+  --sc-0: #1c5cab;
+  --sc-1: #5598e7;
+  --sc-2: #b7d3f6;
+  --fin-0: #b7d3f6;
+  --fin-1: #6da7ec;
+  --fin-2: #2a78d6;
+  --fin-3: #184f95;
+  --pill-ucl: #b7d3f6;
+  --pill-ucl-ink: #0d1f36;
+  --pill-uel: #1f3550;
+  --pill-uel-ink: #cfe0f6;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-inline: 20px;
+  padding-block: 28px 40px;
+  display: grid;
+  gap: 22px;
+}
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: .92em; }
+
+/* ---------- header ---------- */
+header { display: grid; gap: 10px; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(38px, 6vw, 60px);
+  line-height: .95;
+  text-transform: uppercase;
+  margin: 0;
+  text-wrap: balance;
+}
+.lede { margin: 0; max-width: 72ch; color: var(--ink-2); font-size: 15px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px 28px; margin-top: 6px; }
+.fact { display: grid; gap: 0; align-content: start; }
+.fact b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.fact b.warn { color: var(--accent); }
+.fact span { font-size: 12px; color: var(--muted); }
+
+/* ---------- controls ---------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 14px 24px;
+  padding-block: 12px;
+  border-block: 1px solid var(--line);
+}
+.control { display: grid; gap: 4px; min-width: 0; }
+.control > label, .control > .lbl {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.control output { font-family: var(--font-mono); font-size: 12px; color: var(--ink); text-transform: none; letter-spacing: 0; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button {
+  border: 0;
+  background: transparent;
+  padding: 6px 11px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink-2);
+  border-right: 1px solid var(--line);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+input[type="range"] { width: 150px; accent-color: var(--ink); }
+.reset { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 12.5px; color: var(--ink-2); }
+.reset:hover { background: var(--surface); }
+
+/* ---------- sections ---------- */
+section { display: grid; gap: 12px; }
+.sec-head { display: grid; gap: 4px; }
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  text-transform: uppercase;
+  margin: 0;
+  font-weight: 700;
+  line-height: 1;
+}
+.sec-head p { margin: 0; color: var(--ink-2); font-size: 13.5px; max-width: 78ch; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.main.wide-panel { grid-template-columns: minmax(0, 1fr) minmax(0, 480px); }
+@media (max-width: 960px) { .main, .main.wide-panel { grid-template-columns: minmax(0, 1fr); } }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 12px 8px;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--ink-2); padding-inline: 4px; }
+.legend i { display: inline-block; vertical-align: middle; margin-right: 6px; }
+.lg-line { width: 20px; height: 3px; border-radius: 2px; }
+.lg-price { width: 3px; height: 13px; background: var(--accent); }
+.lg-dash { width: 20px; height: 0; border-top: 2px dashed var(--ink-2); }
+.lg-box { width: 11px; height: 11px; border-radius: 2px; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+#ev { height: clamp(300px, 46vh, 460px); }
+#bet { height: clamp(300px, 46vh, 440px); }
+#fin { height: 300px; }
+.axis text { fill: var(--muted); font-family: var(--font-mono); font-size: 10.5px; }
+.axis path, .axis line { stroke: var(--line); }
+.gridline line { stroke: var(--grid); }
+.gridline path { display: none; }
+.axis-title { fill: var(--ink-2); font-size: 12px; font-weight: 500; }
+.lbl-ink { fill: var(--ink); font-size: 11.5px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+.lbl-muted { fill: var(--ink-2); font-size: 11px; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+.lbl-accent { fill: var(--accent); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+.tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--ink);
+  color: var(--surface);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  max-width: 250px;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgb(0 0 0 / .18);
+}
+.tip b { font-size: 13px; }
+.tip .m { font-family: var(--font-mono); font-size: 11px; opacity: .85; }
+
+/* ---------- panels ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.panel h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 26px;
+  line-height: 1;
+  margin: 0;
+  text-wrap: balance;
+}
+.panel .note { font-size: 12.5px; color: var(--ink-2); margin: 0; }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 12px; font-size: 12.5px; margin: 0; }
+.kv dt { color: var(--ink-2); }
+.kv dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.callout {
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.callout .big { font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.need { display: grid; gap: 10px; }
+.need-row { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 4px 10px; align-items: start; font-size: 12.5px; }
+.need-row .swatch { margin-top: 4px; }
+.need-row b { font-weight: 600; }
+.need-row .sub { grid-column: 2; color: var(--muted); font-size: 11.5px; font-family: var(--font-mono); }
+
+/* ---------- path explorer ---------- */
+.draws { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 12.5px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+.chip:hover { border-color: var(--ink-2); }
+.chip.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.pathtable-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+th { font-family: var(--font-mono); font-weight: 500; font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 4px 6px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.num, th.num { text-align: right; font-family: var(--font-mono); }
+.pill { display: inline-block; font-size: 10.5px; font-family: var(--font-mono); padding: 1px 6px; border-radius: 4px; background: var(--band); color: var(--ink-2); }
+.pill.ucl { background: var(--pill-ucl); color: var(--pill-ucl-ink); }
+.pill.uel { background: var(--pill-uel); color: var(--pill-uel-ink); }
+.pill.down { background: var(--accent-soft); color: var(--accent); }
+.neg { color: var(--accent); }
+
+/* ---------- model check ---------- */
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 20px; }
+.checks .card { padding: 14px; gap: 10px; }
+.checks h3 { margin: 0; font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
+.checks p { margin: 0; font-size: 12.5px; color: var(--ink-2); }
+#calib { height: 250px; }
+.bars { display: grid; gap: 8px; }
+.bar-row { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 3px 10px; align-items: center; font-size: 12px; }
+.bar-row .name { color: var(--ink-2); grid-row: span 2; }
+.hbar { position: relative; height: 10px; }
+.hbar span { position: absolute; top: 0; height: 10px; border-radius: 0 3px 3px 0; }
+.hbar em { position: absolute; top: -3px; font-style: normal; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-2); padding-left: 6px; }
+
+footer { font-size: 12px; color: var(--muted); display: grid; gap: 6px; max-width: 92ch; border-top: 1px solid var(--line); padding-top: 14px; }
+footer p { margin: 0; }
+
+@media (max-width: 520px) {
+  .wrap { padding-inline: 16px; }
+  .control { flex: 1 1 100%; }
+  input[type="range"] { width: 100%; }
+  .fact b { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="eyebrow">Manchester United plc · Monte Carlo valuation · as of 20 Feb 2024</div>
+    <h1>What did Ratcliffe bet on?</h1>
+    <p class="lede">INEOS paid $33 a share for a quarter of Manchester United. This model plays out the next ten seasons thousands of times. League finish drives prize money, European qualification, sponsor clauses and wage clauses, and each future becomes a set of cash flows. Move the sliders to test your own view of the price.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <div class="controls" role="group" aria-label="Valuation assumptions">
+    <div class="control">
+      <span class="lbl" id="sc-label">Business scenario</span>
+      <div class="seg" id="scenario" role="group" aria-labelledby="sc-label"></div>
+    </div>
+    <div class="control">
+      <label for="price">Price per share <output id="price-out" for="price"></output></label>
+      <input type="range" id="price" min="10" max="40" step="0.5">
+    </div>
+    <div class="control">
+      <label for="wacc">WACC <output id="wacc-out" for="wacc"></output></label>
+      <input type="range" id="wacc" min="6" max="11" step="0.1">
+    </div>
+    <div class="control">
+      <label for="growth">Terminal growth <output id="growth-out" for="growth"></output></label>
+      <input type="range" id="growth" min="0" max="4" step="0.1">
+    </div>
+    <div class="control">
+      <label for="mult">Exit multiple <output id="mult-out" for="mult"></output></label>
+      <input type="range" id="mult" min="4" max="16" step="0.1">
+    </div>
+    <button type="button" class="reset" id="reset">Reset to model defaults</button>
+  </div>
+
+  <section aria-labelledby="h-ev">
+    <div class="sec-head">
+      <h2 id="h-ev">Every future, valued</h2>
+      <p>Intrinsic enterprise value of each simulated future: free cash flow to the firm, discounted at the WACC, with a terminal value on the last five years' average. The orange line is what the price per share implies once you add net debt and transfer fees owed.</p>
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="legend" id="ev-legend"></div>
+        <div class="chart" id="ev"><div class="tip" id="ev-tip" hidden></div></div>
+      </div>
+      <aside class="panel" id="ev-panel" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-bet">
+    <div class="sec-head">
+      <h2 id="h-bet">The bet: how good do United need to be?</h2>
+      <p>Each point re-runs the simulation with United's underlying strength set to a different level, from a mid-table side to a perennial champion, and plots the buyer's median return. The return comes from paying the price, collecting ten years of cash flow and selling at the exit multiple. The dashed line is the cost of capital.</p>
+    </div>
+    <div class="main">
+      <div class="card">
+        <div class="legend" id="bet-legend"></div>
+        <div class="chart" id="bet"><div class="tip" id="bet-tip" hidden></div></div>
+      </div>
+      <aside class="panel" id="bet-panel" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-fin">
+    <div class="sec-head">
+      <h2 id="h-fin">The sporting futures</h2>
+      <p>United's league finish in each simulated season, from the table as it stood on 20 February 2024. All 380 fixtures are played each season, with promotion and relegation, and European runs are simulated round by round. Draw a single future to see how results turn into money.</p>
+    </div>
+    <div class="main wide-panel">
+      <div class="card">
+        <div class="legend">
+          <span><i class="lg-box" style="background:var(--fin-0)"></i>Top 4</span>
+          <span><i class="lg-box" style="background:var(--fin-1)"></i>5th–7th</span>
+          <span><i class="lg-box" style="background:var(--fin-2)"></i>8th–17th</span>
+          <span><i class="lg-box" style="background:var(--fin-3)"></i>18th–20th or Championship</span>
+        </div>
+        <div class="chart" id="fin"><div class="tip" id="fin-tip" hidden></div></div>
+      </div>
+      <aside class="panel" id="path-panel" aria-live="polite">
+        <div>
+          <h3>One simulated future</h3>
+          <p class="note" id="path-sub"></p>
+        </div>
+        <div class="draws" role="group" aria-label="Choose a future">
+          <button type="button" class="chip primary" id="draw">Draw another future</button>
+          <button type="button" class="chip" data-pick="0.05">A bad one (5th pct)</button>
+          <button type="button" class="chip" data-pick="0.5">Median</button>
+          <button type="button" class="chip" data-pick="0.95">A good one (95th pct)</button>
+        </div>
+        <div class="pathtable-wrap"><table id="path-table"></table></div>
+        <dl class="kv" id="path-kv"></dl>
+      </aside>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-check">
+    <div class="sec-head">
+      <h2 id="h-check">How much to trust it</h2>
+      <p>The sporting model was tested on seasons it had not seen, and against what actually happened after the deal.</p>
+    </div>
+    <div class="checks">
+      <div class="card">
+        <h3>Pre-season top-4 forecasts, 2012–2025</h3>
+        <div class="chart" id="calib"><div class="tip" id="calib-tip" hidden></div></div>
+        <p id="calib-note"></p>
+      </div>
+      <div class="card">
+        <h3>After the deal: forecast vs reality</h3>
+        <div class="pathtable-wrap"><table id="reality"></table></div>
+        <div class="pathtable-wrap"><table id="revcheck"></table></div>
+        <p>The model ran hot on revenue in FY2024. Commercial income was flat, and the old-format group stage paid less than the new tariffs. Both errors flatter the valuation.</p>
+      </div>
+      <div class="card">
+        <h3 id="econ-title">One season's money by European competition</h3>
+        <div class="bars" id="econ"></div>
+        <p id="econ-note"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>Method.</b> Elo ratings on every Premier League match since 2010-11 give a win/draw/loss link. A Kalman-filtered state-space model (a drifting club level plus fading form) evolves every club's strength. Each path plays full seasons, applies English qualification rules and simulates European knockout rounds. Revenue is mapped from results: PL merit payments, UEFA prize money, European gates, the kit-deal penalty after two seasons outside the Champions League, and the Champions League wage clause. The base year is reproduced exactly. FCFF = adjusted EBITDA − tax − net player spend − capex.</p>
+    <p id="foot-data"></p>
+    <p>Code and full report: the <code>manu_valuation</code> package and <code>docs/valuation/report.md</code> in the De-Zerbi-research repository. Deal inputs (share count, net debt, transfer payables), sponsor and wage clause sizes are estimates. See <code>manu_valuation/config.py</code>.</p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="valuation_data.js"></script>
+<script>
+(function () {
+  const D = window.VAL_DATA;
+  const M = D.meta, DEAL = D.deal;
+  const Y = M.horizon, P = M.paths, FF = M.first_fraction;
+  const NAMES = D.scenarios.map(s => s.name);
+  const NOTE = Object.fromEntries(D.scenarios.map(s => [s.name, s.note]));
+  const SC_VAR = Object.fromEntries(NAMES.map((n, i) => [n, `var(--sc-${i})`]));
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  // ---------- data ----------
+  const FIN = Int16Array.from(D.paths.finish), COMP = Int8Array.from(D.paths.comp), STAGE = Int8Array.from(D.paths.stage);
+  const CASH = Object.fromEntries(NAMES.map(n => [n, {
+    fcff: Float64Array.from(D.cash[n].fcff), rev: Float64Array.from(D.cash[n].revenue), ebitda: Float64Array.from(D.cash[n].ebitda)
+  }]));
+  const SWEEP = Object.fromEntries(NAMES.map(n => [n, D.sweep[n].map(r => ({
+    level: r.level, p_top4: r.p_top4, p_ucl: r.p_ucl, fcff: Float64Array.from(r.fcff), rev_last: Float64Array.from(r.rev_last)
+  }))]));
+  const STAGES = ["league phase", "play-off", "last 16", "quarter-final", "semi-final", "lost final", "won it"];
+  const COMPS = ["", "Champions League", "Europa League", "Conference League"];
+  const COMP_SHORT = ["", "UCL", "UEL", "UECL"];
+
+  // ---------- finance maths (mirrors manu_valuation/finance.py) ----------
+  const TIMES = Array.from({ length: Y }, (_, t) => t === 0 ? FF / 2 : FF + t - 0.5);
+  const T_END = FF + Y - 1;
+  function priceEV(usd) { return usd * DEAL.shares_m / DEAL.usd_per_gbp + DEAL.net_debt + DEAL.transfer_payables; }
+  function pvExplicit(f, o, w) {
+    let s = 0;
+    for (let t = 0; t < Y; t++) s += (t === 0 ? f[o] * FF : f[o + t]) / Math.pow(1 + w, TIMES[t]);
+    return s;
+  }
+  function intrinsic(f, o, w, g) {
+    const n = Math.min(M.window, Y - 1);
+    let norm = 0;
+    for (let i = 0; i < n; i++) norm += f[o + Y - n + i] * Math.pow(1 + g, n - 1 - i);
+    norm /= n;
+    return pvExplicit(f, o, w) + norm * (1 + g) / (w - g) / Math.pow(1 + w, T_END);
+  }
+  function irr(price, f, o, exitValue) {
+    let lo = -0.5, hi = 1.0;
+    for (let k = 0; k < 32; k++) {
+      const mid = (lo + hi) / 2;
+      const npv = pvExplicit(f, o, mid) + exitValue / Math.pow(1 + mid, T_END) - price;
+      if (npv > 0) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+  }
+  const quantile = (arr, q) => { const a = Float64Array.from(arr).sort(); const i = (a.length - 1) * q, l = Math.floor(i); return a[l] + (a[Math.min(l + 1, a.length - 1)] - a[l]) * (i - l); };
+  const median = a => quantile(a, 0.5);
+
+  // ---------- formatting ----------
+  const gbp = v => { const s = v < 0 ? "−" : "", a = Math.abs(v); return a >= 1000 ? `${s}£${(a / 1000).toFixed(2)}bn` : `${s}£${a.toFixed(0)}m`; };
+  const gbpShort = v => { const s = v < 0 ? "−" : "", a = Math.abs(v); return a >= 1000 ? `${s}£${(a / 1000).toFixed(1)}bn` : `${s}£${a.toFixed(0)}m`; };
+  const pct = (v, d = 1) => (v < 0 ? "−" : "") + Math.abs(v * 100).toFixed(d) + "%";
+  const usd = v => (v < 0 ? "−$" : "$") + Math.abs(v).toFixed(2);
+  const ordinal = n => { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+
+  // ---------- state ----------
+  const DEFAULTS = { scenario: NAMES[0], priceUsd: DEAL.price_usd, wacc: M.wacc, growth: M.growth,
+    mult: +(priceEV(DEAL.price_usd) / M.entry_revenue).toFixed(1) };
+  const state = { ...DEFAULTS, path: null };
+  let R = {}; // results per scenario
+
+  function compute() {
+    const price = priceEV(state.priceUsd), w = state.wacc, g = state.growth, m = state.mult;
+    R = { price };
+    for (const n of NAMES) {
+      const { fcff, rev } = CASH[n];
+      const ev = new Float64Array(P), ir = new Float64Array(P), req = new Float64Array(P);
+      for (let i = 0; i < P; i++) {
+        const o = i * Y;
+        ev[i] = intrinsic(fcff, o, w, g);
+        const pv = pvExplicit(fcff, o, w);
+        req[i] = (price - pv) * Math.pow(1 + w, T_END) / rev[o + Y - 1];
+        ir[i] = irr(price, fcff, o, m * rev[o + Y - 1]);
+      }
+      let pUcl = 0, above = 0, irrOk = 0;
+      for (let i = 0; i < P; i++) {
+        if (ev[i] >= price) above++;
+        if (ir[i] >= w) irrOk++;
+        for (let t = 1; t < Y; t++) if (COMP[i * Y + t] === 1) pUcl++;
+      }
+      const sweep = SWEEP[n].map(s => {
+        const k = s.rev_last.length, irs = new Float64Array(k), rq = new Float64Array(k);
+        for (let i = 0; i < k; i++) {
+          irs[i] = irr(price, s.fcff, i * Y, m * s.rev_last[i]);
+          rq[i] = (price - pvExplicit(s.fcff, i * Y, w)) * Math.pow(1 + w, T_END) / s.rev_last[i];
+        }
+        return { ...s, irr: median(irs), req: median(rq) };
+      });
+      R[n] = { ev, irr: ir, req, sweep, above, irrOk, pUcl: pUcl / (P * (Y - 1)),
+        evMed: median(ev), ev5: quantile(ev, 0.05), ev95: quantile(ev, 0.95), irrMed: median(ir), reqMed: median(req) };
+    }
+  }
+
+  // ---------- controls ----------
+  const scEl = document.getElementById("scenario");
+  scEl.innerHTML = NAMES.map(n => `<button type="button" data-v="${esc(n)}" aria-pressed="${n === state.scenario}"><i class="swatch" style="background:${SC_VAR[n]}"></i>${esc(n)}</button>`).join("");
+  scEl.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.scenario = b.dataset.v;
+    scEl.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    renderAll(false);
+  });
+  const sliders = {
+    price: { key: "priceUsd", to: v => +v, from: v => v, fmt: v => `$${v.toFixed(2)}` },
+    wacc: { key: "wacc", to: v => v / 100, from: v => (v * 100).toFixed(1), fmt: v => pct(v) },
+    growth: { key: "growth", to: v => v / 100, from: v => (v * 100).toFixed(1), fmt: v => pct(v) },
+    mult: { key: "mult", to: v => +v, from: v => v, fmt: v => `${v.toFixed(1)}×` }
+  };
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; compute(); renderAll(false); });
+  }
+  function syncSliders() {
+    for (const [id, s] of Object.entries(sliders)) {
+      document.getElementById(id).value = s.from(state[s.key]);
+      document.getElementById(id + "-out").textContent = s.fmt(state[s.key]);
+    }
+  }
+  for (const [id, s] of Object.entries(sliders)) {
+    document.getElementById(id).addEventListener("input", e => {
+      state[s.key] = s.to(+e.target.value);
+      if (state.growth > state.wacc - 0.01) state.growth = +(state.wacc - 0.01).toFixed(3);
+      syncSliders();
+      schedule();
+    });
+  }
+  document.getElementById("reset").addEventListener("click", () => {
+    Object.assign(state, DEFAULTS);
+    scEl.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === state.scenario));
+    syncSliders(); compute(); renderAll(true);
+  });
+
+  // ---------- header facts ----------
+  function renderFacts() {
+    const r = R[state.scenario], price = R.price;
+    const entryMult = price / M.entry_revenue;
+    document.getElementById("facts").innerHTML = [
+      [gbp(price), `enterprise value at ${usd(state.priceUsd)}/share: ${entryMult.toFixed(1)}× FY${M.entry_fy} revenue`, ""],
+      [gbp(r.evMed), `median intrinsic value, ${state.scenario.toLowerCase()}. ${r.above.toLocaleString()} of ${P.toLocaleString()} futures reach the price`, ""],
+      [pct(r.irrMed), `median return selling at ${state.mult.toFixed(1)}× in ${M.fys[Y - 1]}, against a ${pct(state.wacc)} cost of capital`, r.irrMed < state.wacc ? "warn" : ""],
+      [`${r.reqMed.toFixed(1)}×`, "revenue multiple the exit must fetch for the price to earn the cost of capital", ""]
+    ].map(([b, t, c]) => `<div class="fact"><b class="${c}">${esc(b)}</b><span>${esc(t)}</span></div>`).join("");
+  }
+
+  // ---------- shared chart helpers ----------
+  function makeSvg(el, label) {
+    const svg = d3.select(el).append("svg").attr("role", "img").attr("aria-label", label);
+    return {
+      svg,
+      gGridY: svg.append("g").attr("class", "gridline"),
+      gGridX: svg.append("g").attr("class", "gridline"),
+      gAxX: svg.append("g").attr("class", "axis"),
+      gAxY: svg.append("g").attr("class", "axis"),
+      gMain: svg.append("g"),
+      gTop: svg.append("g"),
+      tX: svg.append("text").attr("class", "axis-title").attr("text-anchor", "end"),
+      tY: svg.append("text").attr("class", "axis-title")
+    };
+  }
+  function placeTip(tip, el, px, py) {
+    tip.hidden = false;
+    const W = el.clientWidth, tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = px + 14, top = py - th - 10;
+    if (left + tw > W) left = px - tw - 14;
+    if (top < 0) top = py + 14;
+    tip.style.left = Math.max(0, left) + "px";
+    tip.style.top = top + "px";
+  }
+
+  // ---------- EV distribution ----------
+  const evEl = document.getElementById("ev"), evTip = document.getElementById("ev-tip");
+  const EV = makeSvg(evEl, "Histogram of simulated enterprise values for each scenario, with the INEOS price marked");
+  let evScale = null, evBins = null;
+  document.getElementById("ev-legend").innerHTML = NAMES.map(n => `<span><i class="lg-line" style="background:${SC_VAR[n]}"></i>${esc(n)}</span>`).join("")
+    + `<span><i class="lg-price"></i>Price implied by the share price</span><span>▼ Future drawn below</span>`;
+
+  function renderEV(animate) {
+    const W = evEl.clientWidth, H = evEl.clientHeight, narrow = W < 520;
+    const m = { top: 30, right: 16, bottom: 40, left: 16 };
+    const t = d3.transition().duration(animate && !reduced ? 450 : 0);
+    const price = R.price;
+    let lo = Infinity, hi = -Infinity;
+    for (const n of NAMES) { lo = Math.min(lo, quantile(R[n].ev, 0.002)); hi = Math.max(hi, quantile(R[n].ev, 0.998)); }
+    hi = Math.max(hi, price);
+    const pad = (hi - lo) * 0.06;
+    const x = d3.scaleLinear().domain([lo - pad, hi + pad]).range([m.left, W - m.right]).nice();
+    const thresholds = d3.range(x.domain()[0], x.domain()[1] + 1e-9, (x.domain()[1] - x.domain()[0]) / 70);
+    const bin = d3.bin().domain(x.domain()).thresholds(thresholds);
+    const hist = Object.fromEntries(NAMES.map(n => [n, bin(Array.from(R[n].ev)).map(b => ({ x0: b.x0, x1: b.x1, share: b.length / P }))]));
+    const ymax = d3.max(NAMES, n => d3.max(hist[n], b => b.share));
+    const y = d3.scaleLinear().domain([0, ymax * 1.18]).range([H - m.bottom, m.top]);
+    evScale = x; evBins = hist;
+
+    EV.gAxX.attr("transform", `translate(0,${H - m.bottom})`).call(d3.axisBottom(x).ticks(narrow ? 5 : 9).tickFormat(v => gbpShort(v)).tickSizeOuter(0));
+    EV.gGridX.attr("transform", `translate(0,${H - m.bottom})`).call(d3.axisBottom(x).ticks(narrow ? 5 : 9).tickSize(-(H - m.top - m.bottom)).tickFormat(""));
+    EV.gAxY.selectAll("*").remove(); EV.gGridY.selectAll("*").remove();
+    EV.tX.attr("x", W - m.right).attr("y", H - 6).text("Intrinsic enterprise value →");
+    EV.tY.text("");
+
+    const area = d3.area().curve(d3.curveStepAfter).x(d => x(d.x0)).y0(y(0)).y1(d => y(d.share));
+    const line = d3.line().curve(d3.curveStepAfter).x(d => x(d.x0)).y(d => y(d.share));
+    const withEnd = h => [...h, { x0: h[h.length - 1].x1, share: 0 }];
+    const order = [...NAMES].sort((a, b) => (a === state.scenario) - (b === state.scenario));
+    EV.gMain.selectAll("path.fill").data([state.scenario]).join("path").attr("class", "fill")
+      .attr("fill", n => SC_VAR[n]).attr("opacity", 0.16).transition(t).attr("d", n => area(withEnd(hist[n])));
+    EV.gMain.selectAll("path.ln").data(order, n => n).join("path").attr("class", "ln").attr("fill", "none")
+      .attr("stroke", n => SC_VAR[n]).attr("stroke-linejoin", "round")
+      .attr("stroke-width", n => n === state.scenario ? 2.4 : 1.4).attr("opacity", n => n === state.scenario ? 1 : 0.75)
+      .transition(t).attr("d", n => line(withEnd(hist[n])));
+
+    // medians labelled directly, price line
+    const top = EV.gTop;
+    top.selectAll("*").remove();
+    NAMES.forEach((n, i) => {
+      const mx = x(R[n].evMed);
+      const peak = d3.max(hist[n], b => b.share);
+      top.append("line").attr("x1", mx).attr("x2", mx).attr("y1", y(0)).attr("y2", y(peak) - 4)
+        .attr("stroke", SC_VAR[n]).attr("stroke-width", 1).attr("stroke-dasharray", "2 3");
+      if (!narrow || n === state.scenario) {
+        top.append("text").attr("class", n === state.scenario ? "lbl-ink" : "lbl-muted")
+          .attr("x", mx).attr("y", y(peak) - 8 - (i % 2) * 14).attr("text-anchor", "middle").text(gbpShort(R[n].evMed));
+      }
+    });
+    const px = x(price);
+    top.append("line").attr("x1", px).attr("x2", px).attr("y1", m.top - 14).attr("y2", y(0)).attr("stroke", "var(--accent)").attr("stroke-width", 2.5);
+    const right = px > W - 150;
+    top.append("text").attr("class", "lbl-accent").attr("x", px + (right ? -8 : 8)).attr("y", m.top - 2)
+      .attr("text-anchor", right ? "end" : "start").text(`Price ${gbpShort(price)}`);
+    top.append("text").attr("class", "lbl-muted").attr("x", px + (right ? -8 : 8)).attr("y", m.top + 13)
+      .attr("text-anchor", right ? "end" : "start").text(`${usd(state.priceUsd)}/share`);
+    const best = d3.max(NAMES, n => R[n].evMed);
+    if (!narrow && price > best && px - x(best) > 120) {
+      const ya = y(ymax * 0.55);
+      top.append("line").attr("x1", x(best) + 4).attr("x2", px - 4).attr("y1", ya).attr("y2", ya).attr("stroke", "var(--muted)").attr("stroke-width", 1);
+      top.append("text").attr("class", "lbl-muted").attr("x", (x(best) + px) / 2).attr("y", ya - 6).attr("text-anchor", "middle")
+        .text(`${gbpShort(price - best)} above the best median`);
+    }
+    if (state.path != null) {
+      const v = R[state.scenario].ev[state.path];
+      top.append("path").attr("d", d3.symbol(d3.symbolTriangle, 70)()).attr("transform", `translate(${x(v)},${y(0) - 8}) rotate(180)`)
+        .attr("fill", "var(--ink)").attr("stroke", "var(--surface)").attr("stroke-width", 1.5);
+    }
+  }
+  EV.svg.on("pointermove", ev => {
+    if (!evScale) return;
+    const [mx, my] = d3.pointer(ev, EV.svg.node());
+    const v = evScale.invert(mx);
+    const n = state.scenario, h = evBins[n].find(b => v >= b.x0 && v < b.x1);
+    if (!h) { evTip.hidden = true; return; }
+    const r = R[n];
+    let below = 0; for (let i = 0; i < P; i++) if (r.ev[i] < v) below++;
+    evTip.innerHTML = `<b>${gbp(h.x0)} to ${gbp(h.x1)}</b><br>${esc(n)}: ${pct(h.share)} of futures<br><span class="m">${pct(below / P, 0)} of futures are worth less than ${gbpShort(v)}</span>`;
+    placeTip(evTip, evEl, mx, my);
+  }).on("pointerleave", () => { evTip.hidden = true; });
+
+  function renderEVPanel() {
+    const n = state.scenario, r = R[n], price = R.price;
+    const perShare = v => (v - DEAL.net_debt - DEAL.transfer_payables) * DEAL.usd_per_gbp / DEAL.shares_m;
+    document.getElementById("ev-panel").innerHTML = `
+      <div><h3>${esc(n)}</h3><p class="note">${esc(NOTE[n])}.</p></div>
+      <dl class="kv">
+        <dt>Median intrinsic value</dt><dd>${gbp(r.evMed)}</dd>
+        <dt>5th to 95th percentile</dt><dd>${gbpShort(r.ev5)} to ${gbpShort(r.ev95)}</dd>
+        <dt>Futures worth the price or more</dt><dd>${r.above.toLocaleString()} of ${P.toLocaleString()}</dd>
+        <dt>Share price the median future supports</dt><dd>${usd(perShare(r.evMed))}</dd>
+        <dt>Share of future seasons in the UCL</dt><dd>${pct(r.pUcl, 0)}</dd>
+      </dl>
+      <div class="callout">
+        <div>Gap between the price and the median future</div>
+        <div class="big">${gbp(price - r.evMed)}</div>
+        <div>${price > r.ev95 ? "The price is above the 95th percentile. The cash flows do not explain it. The buyer is paying for something else: resale value, scarcity, or a change the model does not include." : price > r.evMed ? "The price needs a better-than-median future." : "The median future covers the price."}</div>
+      </div>`;
+  }
+
+  // ---------- the bet ----------
+  const betEl = document.getElementById("bet"), betTip = document.getElementById("bet-tip");
+  const BET = makeSvg(betEl, "Median buyer return against the share of seasons in the Champions League, for each scenario");
+  let betPts = [];
+  function renderBet(animate) {
+    const W = betEl.clientWidth, H = betEl.clientHeight, narrow = W < 520;
+    const m = { top: 16, right: narrow ? 16 : 110, bottom: 42, left: 46 };
+    const t = d3.transition().duration(animate && !reduced ? 450 : 0);
+    const all = NAMES.flatMap(n => R[n].sweep.map(s => s.irr));
+    const ylo = Math.min(d3.min(all), state.wacc) - 0.01, yhi = Math.max(d3.max(all), state.wacc) + 0.01;
+    const x = d3.scaleLinear().domain([0, 1]).range([m.left, W - m.right]);
+    const y = d3.scaleLinear().domain([ylo, yhi]).range([H - m.bottom, m.top]).nice();
+    BET.gAxX.attr("transform", `translate(0,${H - m.bottom})`).call(d3.axisBottom(x).ticks(5).tickFormat(d3.format(".0%")).tickSizeOuter(0));
+    BET.gAxY.attr("transform", `translate(${m.left},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(d3.format(".0%")).tickSizeOuter(0));
+    BET.gGridY.attr("transform", `translate(${m.left},0)`).call(d3.axisLeft(y).ticks(6).tickSize(-(W - m.left - m.right)).tickFormat(""));
+    BET.tX.attr("x", W - m.right).attr("y", H - 6).text("Share of future seasons in the Champions League →");
+    BET.tY.attr("x", m.left + 6).attr("y", m.top).attr("dy", ".7em").text("↑ Median return (IRR)");
+
+    const line = d3.line().x(s => x(s.p_ucl)).y(s => y(s.irr));
+    BET.gMain.selectAll("path.ln").data(NAMES, n => n).join("path").attr("class", "ln").attr("fill", "none")
+      .attr("stroke", n => SC_VAR[n]).attr("stroke-width", n => n === state.scenario ? 3 : 2)
+      .transition(t).attr("d", n => line(R[n].sweep));
+    betPts = NAMES.flatMap(n => R[n].sweep.map(s => ({ n, s })));
+    BET.gMain.selectAll("circle.pt").data(betPts, d => d.n + d.s.level).join("circle").attr("class", "pt")
+      .attr("r", d => d.n === state.scenario ? 4.5 : 3.5).attr("fill", d => SC_VAR[d.n]).attr("stroke", "var(--surface)").attr("stroke-width", 1.5)
+      .transition(t).attr("cx", d => x(d.s.p_ucl)).attr("cy", d => y(d.s.irr));
+
+    const top = BET.gTop; top.selectAll("*").remove();
+    const wy = y(state.wacc);
+    top.append("line").attr("x1", m.left).attr("x2", W - m.right).attr("y1", wy).attr("y2", wy)
+      .attr("stroke", "var(--ink-2)").attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4");
+    top.append("text").attr("class", "lbl-ink").attr("x", m.left + 8).attr("y", wy - 6).text(`Cost of capital ${pct(state.wacc)}`);
+    if (!narrow) {
+      const ends = NAMES.map(n => ({ n, y: y(R[n].sweep[R[n].sweep.length - 1].irr) })).sort((a, b) => a.y - b.y);
+      for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+      ends.forEach(e => top.append("text").attr("class", "lbl-ink").attr("x", W - m.right + 8).attr("y", e.y + 4).text(e.n));
+    }
+    // the model's own view of United, for the selected scenario
+    const r = R[state.scenario];
+    top.append("circle").attr("cx", x(r.pUcl)).attr("cy", y(r.irrMed)).attr("r", 9)
+      .attr("fill", "none").attr("stroke", "var(--accent)").attr("stroke-width", 2);
+    top.append("text").attr("class", "lbl-accent").attr("x", x(r.pUcl) + 13).attr("y", y(r.irrMed) + 20)
+      .text("model's view of United at the deal");
+    BET._x = x; BET._y = y;
+  }
+  BET.svg.on("pointermove", ev => {
+    if (!BET._x) return;
+    const [mx, my] = d3.pointer(ev, BET.svg.node());
+    let best = null, bd = 30;
+    for (const d of betPts) {
+      const dd = Math.hypot(BET._x(d.s.p_ucl) - mx, BET._y(d.s.irr) - my);
+      if (dd < bd) { bd = dd; best = d; }
+    }
+    if (!best) { betTip.hidden = true; return; }
+    const s = best.s;
+    betTip.innerHTML = `<b>${esc(best.n)}</b><br>United's level: ${s.level} Elo above an average side<br>`
+      + `<span class="m">Top 4 in ${pct(s.p_top4, 0)} of seasons · UCL in ${pct(s.p_ucl, 0)}</span><br>`
+      + `Median IRR <b>${pct(s.irr)}</b><br><span class="m">Exit multiple needed for ${pct(state.wacc)}: ${s.req.toFixed(1)}×</span>`;
+    placeTip(betTip, betEl, BET._x(s.p_ucl), BET._y(s.irr));
+  }).on("pointerleave", () => { betTip.hidden = true; });
+
+  function crossing(sw, target) {
+    for (let i = 0; i < sw.length; i++) {
+      if (sw[i].irr >= target) {
+        if (i === 0) return { p: sw[0].p_ucl, below: true };
+        const a = sw[i - 1], b = sw[i], f = (target - a.irr) / (b.irr - a.irr);
+        return { p: a.p_ucl + f * (b.p_ucl - a.p_ucl) };
+      }
+    }
+    return null;
+  }
+  function renderBetPanel() {
+    const rows = NAMES.map(n => {
+      const sw = R[n].sweep, c = crossing(sw, state.wacc), last = sw[sw.length - 1];
+      const head = c ? (c.below ? `Earns the cost of capital even with United rarely in the UCL`
+        : `Needs the Champions League in about <b>${pct(c.p, 0)}</b> of seasons`)
+        : `Never earns ${pct(state.wacc)}: even with the UCL in ${pct(last.p_ucl, 0)} of seasons, the median IRR is ${pct(last.irr)}`;
+      return `<div class="need-row"><i class="swatch" style="background:${SC_VAR[n]}"></i><div><b>${esc(n)}.</b> ${head}.</div>`
+        + `<div class="sub">Exit needed at the best level: ${last.req.toFixed(1)}×</div></div>`;
+    }).join("");
+    const r = R[state.scenario];
+    document.getElementById("bet-panel").innerHTML = `
+      <div><h3>What it takes</h3><p class="note">Paying ${gbpShort(R.price)} and selling at ${state.mult.toFixed(1)}× revenue in ${M.fys[Y - 1]}.</p></div>
+      <div class="need">${rows}</div>
+      <div class="callout">
+        <div>At the model's own view of United (${esc(state.scenario.toLowerCase())}), the exit must fetch</div>
+        <div class="big">${r.reqMed.toFixed(1)}× revenue</div>
+        <div>to earn ${pct(state.wacc)}. The price paid was ${(R.price / M.entry_revenue).toFixed(1)}×. The bet is that football clubs keep re-rating, and results on the pitch decide how much re-rating is needed.</div>
+      </div>
+      <p class="note">A stronger United costs nothing in this sweep. In reality strength is bought with wages and transfer fees, so these returns are an upper bound.</p>`;
+  }
+
+  // ---------- finishes ----------
+  const finEl = document.getElementById("fin"), finTip = document.getElementById("fin-tip");
+  const FINC = makeSvg(finEl, "Stacked bars of United's simulated league finish by season");
+  const BANDS = [["Top 4", f => f <= 4], ["5th–7th", f => f >= 5 && f <= 7], ["8th–17th", f => f >= 8 && f <= 17], ["18th–20th or Championship", f => f >= 18]];
+  const finShares = M.seasons.map((s, t) => {
+    const c = [0, 0, 0, 0];
+    for (let i = 0; i < P; i++) { const f = FIN[i * Y + t]; for (let b = 0; b < 4; b++) if (BANDS[b][1](f)) { c[b]++; break; } }
+    return c.map(v => v / P);
+  });
+  function renderFin() {
+    const W = finEl.clientWidth, H = finEl.clientHeight, narrow = W < 560;
+    const m = { top: 10, right: 8, bottom: 30, left: 38 };
+    const x = d3.scaleBand().domain(M.seasons).range([m.left, W - m.right]).padding(0.22);
+    const y = d3.scaleLinear().domain([0, 1]).range([H - m.bottom, m.top]);
+    FINC.gAxX.attr("transform", `translate(0,${H - m.bottom})`).call(d3.axisBottom(x).tickFormat(s => narrow ? "’" + s.slice(2, 4) : s).tickSizeOuter(0));
+    FINC.gAxY.attr("transform", `translate(${m.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(".0%")).tickSizeOuter(0));
+    const rects = [];
+    finShares.forEach((sh, t) => { let acc = 0; sh.forEach((v, b) => { rects.push({ t, b, y0: acc, y1: acc + v, v }); acc += v; }); });
+    FINC.gMain.selectAll("rect").data(rects).join("rect")
+      .attr("x", d => x(M.seasons[d.t])).attr("width", x.bandwidth())
+      .attr("y", d => y(d.y1)).attr("height", d => Math.max(0, y(d.y0) - y(d.y1) - (d.v > 0 ? 2 : 0)))
+      .attr("fill", d => `var(--fin-${d.b})`);
+    FINC.gTop.selectAll("*").remove();
+    finShares.forEach((sh, t) => {
+      if (sh[0] > 0.08) FINC.gTop.append("text").attr("x", x(M.seasons[t]) + x.bandwidth() / 2).attr("y", y(sh[0] / 2) + 4)
+        .attr("text-anchor", "middle").attr("font-size", 10.5).attr("font-family", "var(--font-mono)").attr("fill", "var(--surface)")
+        .text(Math.round(sh[0] * 100) + "%");
+    });
+    if (state.path != null) {
+      finShares.forEach((_, t) => {
+        const f = FIN[state.path * Y + t];
+        FINC.gTop.append("text").attr("x", x(M.seasons[t]) + x.bandwidth() / 2).attr("y", m.top + 12).attr("text-anchor", "middle")
+          .attr("class", "lbl-accent").attr("font-size", 11).text(f === 99 ? "Ch" : f);
+      });
+    }
+    FINC._x = x;
+  }
+  FINC.svg.on("pointermove", ev => {
+    if (!FINC._x) return;
+    const [mx, my] = d3.pointer(ev, FINC.svg.node());
+    const x = FINC._x, t = M.seasons.findIndex(s => mx >= x(s) && mx <= x(s) + x.bandwidth());
+    if (t < 0) { finTip.hidden = true; return; }
+    const sh = finShares[t];
+    finTip.innerHTML = `<b>${M.seasons[t]}</b><br>` + BANDS.map((b, i) => `${b[0]}: ${pct(sh[i])}`).join("<br>")
+      + (state.path != null ? `<br><span class="m">Drawn future: ${FIN[state.path * Y + t] === 99 ? "Championship" : ordinal(FIN[state.path * Y + t])}</span>` : "");
+    placeTip(finTip, finEl, mx, my);
+  }).on("pointerleave", () => { finTip.hidden = true; });
+
+  // ---------- path explorer ----------
+  let seed = 20240220;
+  const rand = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+  function pickQuantile(q) {
+    const ev = R[state.scenario].ev, idx = Array.from({ length: P }, (_, i) => i).sort((a, b) => ev[a] - ev[b]);
+    state.path = idx[Math.round(q * (P - 1))];
+  }
+  function renderPath() {
+    if (state.path == null) return;
+    const i = state.path, n = state.scenario, c = CASH[n], r = R[n];
+    const rows = M.seasons.map((s, t) => {
+      const f = FIN[i * Y + t], comp = COMP[i * Y + t], st = STAGE[i * Y + t];
+      const fin = f === 99 ? `<span class="pill down">Championship</span>` : ordinal(f);
+      const stageName = comp && st >= 0 ? (t === 0 && st === 0 ? "group stage" : STAGES[st]) : "";
+      const eu = comp ? `<span class="pill ${comp === 1 ? "ucl" : "uel"}">${COMP_SHORT[comp]}</span> ${stageName}` : `<span class="pill">none</span>`;
+      const fc = c.fcff[i * Y + t];
+      return `<tr><td>${s}</td><td>${fin}</td><td>${eu}</td><td class="num">${c.rev[i * Y + t].toFixed(0)}</td><td class="num">${c.ebitda[i * Y + t].toFixed(0)}</td><td class="num ${fc < 0 ? "neg" : ""}">${fc < 0 ? "−" : ""}${Math.abs(fc).toFixed(0)}</td></tr>`;
+    }).join("");
+    document.getElementById("path-table").innerHTML = `<thead><tr><th>Season</th><th>Finish</th><th>Europe</th><th class="num">Revenue</th><th class="num">EBITDA</th><th class="num">FCFF</th></tr></thead><tbody>${rows}</tbody>`;
+    let rank = 0; for (let k = 0; k < P; k++) if (r.ev[k] < r.ev[i]) rank++;
+    let ucl = 0; for (let t = 1; t < Y; t++) if (COMP[i * Y + t] === 1) ucl++;
+    document.getElementById("path-sub").textContent = `Future #${(i + 1).toLocaleString()} of ${P.toLocaleString()} · ${n} · £m, nominal. The first season is the rest of 2023-24.`;
+    document.getElementById("path-kv").innerHTML = `
+      <dt>Champions League seasons (of ${Y - 1} still open)</dt><dd>${ucl}</dd>
+      <dt>Intrinsic value of this future</dt><dd>${gbp(r.ev[i])}</dd>
+      <dt>Where it ranks</dt><dd>${ordinal(Math.round(rank / P * 100) || 1)} percentile</dd>
+      <dt>IRR selling at ${state.mult.toFixed(1)}×</dt><dd>${pct(r.irr[i])}</dd>`;
+  }
+  document.getElementById("draw").addEventListener("click", () => { state.path = Math.floor(rand() * P); renderPath(); renderFin(); renderEV(false); });
+  document.querySelectorAll("[data-pick]").forEach(b => b.addEventListener("click", () => { pickQuantile(+b.dataset.pick); renderPath(); renderFin(); renderEV(false); }));
+
+  // ---------- model check ----------
+  function renderChecks() {
+    const el = document.getElementById("calib"), tip = document.getElementById("calib-tip");
+    el.querySelectorAll("svg").forEach(s => s.remove());
+    const W = el.clientWidth, H = el.clientHeight, m = { top: 10, right: 12, bottom: 34, left: 40 };
+    const svg = d3.select(el).append("svg").attr("role", "img").attr("aria-label", "Calibration of pre-season top-4 forecasts");
+    const x = d3.scaleLinear().domain([0, 1]).range([m.left, W - m.right]), y = d3.scaleLinear().domain([0, 1]).range([H - m.bottom, m.top]);
+    svg.append("g").attr("class", "gridline").attr("transform", `translate(${m.left},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - m.left - m.right)).tickFormat(""));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.bottom})`).call(d3.axisBottom(x).ticks(5).tickFormat(d3.format(".0%")).tickSizeOuter(0));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(".0%")).tickSizeOuter(0));
+    svg.append("line").attr("x1", x(0)).attr("y1", y(0)).attr("x2", x(1)).attr("y2", y(1)).attr("stroke", "var(--line)").attr("stroke-width", 1.5);
+    const cal = D.model.calibration;
+    svg.append("path").attr("d", d3.line().x(d => x(d.pred)).y(d => y(d.obs))(cal)).attr("fill", "none").attr("stroke", "var(--sc-1)").attr("stroke-width", 2);
+    svg.selectAll("circle").data(cal).join("circle").attr("cx", d => x(d.pred)).attr("cy", d => y(d.obs))
+      .attr("r", d => 4 + Math.sqrt(d.n) / 2).attr("fill", "var(--sc-1)").attr("stroke", "var(--surface)").attr("stroke-width", 1.5)
+      .on("pointerenter", (e, d) => { tip.innerHTML = `Forecast ${pct(d.pred)}<br>Happened ${pct(d.obs)}<br><span class="m">${d.n} team-seasons</span>`; placeTip(tip, el, x(d.pred), y(d.obs)); })
+      .on("pointerleave", () => { tip.hidden = true; });
+    svg.append("text").attr("class", "axis-title").attr("x", W - m.right).attr("y", H - 4).attr("text-anchor", "end").text("Forecast chance of top 4 →");
+    svg.append("text").attr("class", "axis-title").attr("x", m.left + 6).attr("y", m.top).attr("dy", ".7em").text("↑ How often it happened");
+    const b = Object.fromEntries(D.model.brier.map(r => [r.event, r]));
+    document.getElementById("calib-note").innerHTML = `Forecast before each season with only earlier data. Top-4 Brier skill <b>${b["top 4"].skill.toFixed(2)}</b> and relegation skill <b>${b["relegated"].skill.toFixed(2)}</b>, measured against always predicting the base rate. Points near the diagonal mean the probabilities can be taken at face value.`;
+
+    document.getElementById("reality").innerHTML = `<thead><tr><th>Season</th><th class="num">Actual</th><th class="num">Model median</th><th class="num">P(this or worse)</th></tr></thead><tbody>`
+      + D.reality.map(r => `<tr><td>${r.season}</td><td class="num">${ordinal(r.actual)}</td><td class="num">${ordinal(Math.round(r.median))}</td><td class="num">${pct(r.p_this_or_worse)}</td></tr>`).join("") + "</tbody>";
+    document.getElementById("revcheck").innerHTML = `<thead><tr><th>Revenue</th><th class="num">Actual</th><th class="num">Model 5th–95th</th></tr></thead><tbody>`
+      + D.revenue_check.map(r => `<tr><td>${r.fy}</td><td class="num">£${r.actual.toFixed(0)}m</td><td class="num">£${r.model_p5.toFixed(0)}–${r.model_p95.toFixed(0)}m</td></tr>`).join("") + "</tbody>";
+
+    document.getElementById("econ-title").textContent = `One season's money by European competition, FY${D.econ_fy}`;
+    const max = d3.max(D.econ, e => e.revenue);
+    const lines = [["revenue", "Revenue", "var(--sc-0)"], ["ebitda", "EBITDA", "var(--sc-1)"], ["fcff", "FCFF", "var(--sc-2)"]];
+    const lo = d3.min(D.econ, e => e.fcff), zero = Math.max(0, -lo) / (max - Math.min(0, lo)) * 100;
+    const scale = v => Math.abs(v) / (max - Math.min(0, lo)) * 100;
+    document.getElementById("econ").innerHTML = `<div class="legend" style="padding:0">${lines.map(l => `<span><i class="lg-box" style="background:${l[2]}"></i>${l[1]}</span>`).join("")}</div>`
+      + D.econ.map(e => `<div class="bar-row"><span class="name">${esc(e.comp)}</span><div style="display:grid;gap:2px">`
+        + lines.map(([k, , col]) => { const v = e[k], left = v >= 0 ? zero : zero - scale(v);
+          return `<div class="hbar" title="${k}: £${v.toFixed(0)}m"><span style="left:${left}%;width:${scale(v)}%;background:${col}"></span><em style="left:${v >= 0 ? zero + scale(v) : zero}%">${v < 0 ? "−" : ""}£${Math.abs(v).toFixed(0)}m</em></div>`; }).join("")
+        + `</div></div>`).join("");
+    const u = D.econ.find(e => e.comp === "Champions League"), z = D.econ.find(e => e.comp === "No Europe");
+    if (u && z) document.getElementById("econ-note").innerHTML = `Champions League against no Europe: <b>+£${(u.revenue - z.revenue).toFixed(0)}m</b> revenue but only <b>+£${(u.ebitda - z.ebitda).toFixed(0)}m</b> EBITDA. Wage clauses and bonuses hand much of the upside to the players.`;
+  }
+
+  document.getElementById("foot-data").innerHTML = `<b>Data.</b> Premier League results from openfootball (public domain). Club financials: ${esc(M.financials)}, base year FY${M.base_fy}. ${P.toLocaleString()} paths for the distributions and ${M.sweep_paths.toLocaleString()} for each point of the strength sweep. United's filtered strength at the deal: ${D.model.level_at_deal.toFixed(0)} Elo points above an average side. Level drift ${D.model.sigma_level.toFixed(0)} a season.`;
+
+  function renderAll(animate) {
+    renderFacts(); renderEV(animate); renderEVPanel(); renderBet(animate); renderBetPanel(); renderFin(); renderPath();
+  }
+
+  syncSliders();
+  compute();
+  pickQuantile(0.5);
+  renderAll(false);
+  renderChecks();
+  let raf;
+  const ro = new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { renderAll(false); renderChecks(); }); });
+  [evEl, betEl, finEl].forEach(el => ro.observe(el));
+})();
+</script>

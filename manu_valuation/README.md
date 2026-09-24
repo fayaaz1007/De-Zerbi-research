@@ -13,7 +13,10 @@ February 2024?*
 
 ![Intrinsic EV vs the INEOS price](../docs/valuation/ev_distribution.png)
 
-Full output: [`docs/valuation/report.md`](../docs/valuation/report.md).
+Full output: [`docs/valuation/report.md`](../docs/valuation/report.md). Interactive version:
+[`docs/valuation/index.html`](../docs/valuation/index.html). Rebuild its data with
+`python scripts/export_valuation_data.py`. It recomputes the DCF, IRR and exit multiple in the
+browser, with sliders for price per share, WACC, terminal growth and exit multiple.
 
 ## Headline (as of 20 Feb 2024, 10,000 paths)
 
