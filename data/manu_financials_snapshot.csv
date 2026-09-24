@@ -1,0 +1,8 @@
+fy,revenue,matchday,broadcasting,commercial,wages,adj_ebitda,amortisation,depreciation,source
+2019,627.1,110.8,241.2,275.1,332.4,185.8,,,"approx. from FY2019 results release; refresh with scripts/fetch_edgar.py"
+2020,509.0,89.8,140.2,279.0,284.0,114.9,,,"approx. from FY2020 results release; refresh with scripts/fetch_edgar.py"
+2021,494.1,7.9,250.3,235.9,322.6,82.1,,,"approx. from FY2021 results release; refresh with scripts/fetch_edgar.py"
+2022,583.2,110.1,215.3,257.8,384.2,114.4,,,"approx. from FY2022 results release; refresh with scripts/fetch_edgar.py"
+2023,648.4,130.4,215.2,302.8,331.4,142.7,150.0,30.0,"approx. from FY2023 20-F; amortisation/depreciation rounded; refresh with scripts/fetch_edgar.py"
+2024,661.8,137.1,221.8,302.9,364.8,147.7,165.0,35.0,"approx. from FY2024 20-F; amortisation/depreciation rounded; refresh with scripts/fetch_edgar.py"
+2025,666.5,160.3,172.9,333.3,313.2,180.0,180.0,35.0,"approx. from FY2025 results release; amortisation/depreciation rounded; refresh with scripts/fetch_edgar.py"

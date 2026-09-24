@@ -1,5 +1,9 @@
 # De Zerbi tactical-performance model
 
+> Also in this repo: **[Manchester United Monte Carlo valuation](manu_valuation/README.md)**.
+> Simulated league seasons drive the cash flows, a DCF and the INEOS entry price
+> ("What did Ratcliffe implicitly bet on?"). Run `python run_valuation.py`.
+
 Tests three hypotheses about Roberto De Zerbi's teams (Sassuolo, Brighton, Marseille):
 
 | | Hypothesis | Variable in the model | Supported if |
