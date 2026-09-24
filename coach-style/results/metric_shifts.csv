@@ -1,0 +1,15 @@
+metric,label,real_abs_shift,placebo_abs_shift,ratio,p_abs,mean_signed_shift,signed_lo,signed_hi,p_holm
+ppda,PPDA (opp passes per defensive action; LOW = presses harder),1.221,0.828,1.476,0.002,-0.047,-0.517,0.204,0.024
+pass_length,Average open-play pass length (yd),0.614,0.481,1.276,0.027,-0.056,-0.238,0.178,0.348
+gk_short_share,Goal kicks played short %,0.659,0.529,1.246,0.043,0.273,-0.264,0.202,0.505
+cross_share,Crosses % of passes into the final third,0.886,0.712,1.245,0.042,0.018,-0.227,0.376,0.505
+press_high_share,Pressures in opponent half %,1.098,0.896,1.225,0.045,0.305,-0.339,0.420,0.505
+directness,Directness (forward yards / pass yards),0.576,0.481,1.198,0.069,-0.039,-0.199,0.212,0.623
+long_ball_share,Long balls % (35+ yd),0.532,0.462,1.152,0.141,-0.033,-0.170,0.235,1.000
+passes_per_poss,Passes per possession,0.466,0.424,1.099,0.237,0.102,-0.171,0.205,1.000
+possession,Possession % (share of passes),0.514,0.495,1.040,0.377,-0.014,-0.189,0.255,1.000
+field_tilt,Field tilt % (share of final-third passes),0.673,0.697,0.966,0.586,0.068,-0.290,0.310,1.000
+def_height,Average height of defensive actions (yd from own goal),0.959,1.004,0.955,0.627,0.120,-0.414,0.434,1.000
+press_intensity,Pressures per opponent pass,0.886,0.951,0.932,0.681,0.071,-0.108,0.682,1.000
+counter_shots,Shots from counter-attacks per match,1.553,1.708,0.909,0.731,-0.052,-0.915,0.576,1.000
+high_recoveries,Ball wins in the final third per match,1.151,1.411,0.815,0.925,-0.223,-0.289,0.897,1.000

@@ -1,5 +1,9 @@
 # De Zerbi tactical-performance model
 
+> Also in this repo: [**coach-style/**](coach-style/README.md), which asks whether a new
+> manager changes how a team plays, using 33 mid-season manager changes from 2015/16 and
+> StatsBomb event data.
+
 Tests three hypotheses about Roberto De Zerbi's teams (Sassuolo, Brighton, Marseille):
 
 | | Hypothesis | Variable in the model | Supported if |
