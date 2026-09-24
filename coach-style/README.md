@@ -42,6 +42,12 @@ that kept their manager.
 
 Full tables: [`results/report.md`](results/report.md).
 
+**Interactive version:** [`web/style_map.html`](web/style_map.html) is a clickable style map.
+Hover a spell, switch the axes to any of the 14 metrics, filter by league, and open any
+change to see its before/after profile, shift percentile and bounce. Open it in a browser
+(it loads D3 from cdnjs), or serve the repo with GitHub Pages.
+Regenerate its data with `python scripts/export_web_data.py`.
+
 ## Three traps, and how the design avoids them
 
 1. **Style depends on the opponent.** Everyone has less of the ball against Barcelona, so
@@ -124,6 +130,8 @@ coachstyle/analysis.py    opponent adjustment, style-shift test, bounce, fingerp
 coachstyle/plots.py       charts
 coachstyle/synthetic.py   fake season with planted effects, for tests
 run_analysis.py           everything -> results/
+scripts/export_web_data.py  data for the interactive map -> web/style_map_data.js
+web/style_map.html        interactive style map (D3)
 ```
 
 Data: StatsBomb open data, used under the

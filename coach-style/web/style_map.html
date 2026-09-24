@@ -1,0 +1,686 @@
+<title>Manager Style Map</title>
+<meta name="description" content="Interactive map of how 115 team–manager spells played in 2015/16, and where 33 mid-season manager changes moved them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #eef1ed;
+  --surface: #fafbf9;
+  --ink: #16201a;
+  --ink-2: #4a574f;
+  --muted: #7f8a83;
+  --line: #dde3de;
+  --grid: #e6ebe7;
+  --dot: #aeb8b1;
+  --dot-dim: #d5dbd6;
+  --arrow: #9ec5f4;
+  --arrow-strong: #2a78d6;
+  --accent: #eb6834;
+  --accent-soft: #fbe3d8;
+  --band: #d9dfda;
+  --pos: #2a78d6;
+  --neg: #7f8a83;
+  --focus: #2a78d6;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1310;
+    --surface: #151b17;
+    --ink: #e7ece8;
+    --ink-2: #b2bcb5;
+    --muted: #7c877f;
+    --line: #28312b;
+    --grid: #202822;
+    --dot: #66736a;
+    --dot-dim: #2c352f;
+    --arrow: #2f5a8c;
+    --arrow-strong: #5598e7;
+    --accent: #f07a4a;
+    --accent-soft: #3a2219;
+    --band: #2a332d;
+    --pos: #5598e7;
+    --neg: #7c877f;
+    --focus: #5598e7;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1310;
+  --surface: #151b17;
+  --ink: #e7ece8;
+  --ink-2: #b2bcb5;
+  --muted: #7c877f;
+  --line: #28312b;
+  --grid: #202822;
+  --dot: #66736a;
+  --dot-dim: #2c352f;
+  --arrow: #2f5a8c;
+  --arrow-strong: #5598e7;
+  --accent: #f07a4a;
+  --accent-soft: #3a2219;
+  --band: #2a332d;
+  --pos: #5598e7;
+  --neg: #7c877f;
+  --focus: #5598e7;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-inline: 20px;
+  padding-block: 28px 40px;
+  display: grid;
+  gap: 20px;
+}
+button, select, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+header { display: grid; gap: 10px; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(38px, 6vw, 60px);
+  line-height: .95;
+  letter-spacing: .005em;
+  text-transform: uppercase;
+  margin: 0;
+  text-wrap: balance;
+}
+.lede { margin: 0; max-width: 68ch; color: var(--ink-2); font-size: 15px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 6px; }
+.fact { display: grid; gap: 0; }
+.fact b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.fact span { font-size: 12px; color: var(--muted); max-width: 26ch; }
+
+/* ---------- controls ---------- */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px 20px;
+  padding-block: 12px;
+  border-block: 1px solid var(--line);
+}
+.control { display: grid; gap: 4px; }
+.control > label, .control > .lbl {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button {
+  border: 0;
+  background: transparent;
+  padding: 6px 11px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink-2);
+  border-right: 1px solid var(--line);
+}
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+select, input[type="search"] {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  max-width: 100%;
+}
+select { min-width: 0; width: 17em; }
+input[type="search"] { width: 13em; }
+
+/* ---------- main grid ---------- */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; align-items: start; }
+@media (max-width: 960px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 12px 8px;
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--ink-2); padding-inline: 4px; }
+.legend i { display: inline-block; vertical-align: middle; margin-right: 6px; }
+.lg-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dot); }
+.lg-arrow { width: 22px; height: 2px; background: var(--arrow); position: relative; }
+.lg-arrow.strong { background: var(--arrow-strong); height: 3px; }
+.lg-sel { width: 10px; height: 10px; border-radius: 50%; border: 2.5px solid var(--accent); }
+#chart { position: relative; width: 100%; height: clamp(360px, 62vh, 640px); }
+#chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.axis text { fill: var(--muted); font-family: var(--font-mono); font-size: 10.5px; }
+.axis path, .axis line { stroke: var(--line); }
+.gridline line { stroke: var(--grid); }
+.gridline path { display: none; }
+.axis-title { fill: var(--ink-2); font-size: 12px; font-weight: 500; }
+.zero { stroke: var(--line); stroke-width: 1.2; }
+.pt { fill: var(--dot); stroke: var(--surface); stroke-width: 1.5; cursor: pointer; transition: fill .15s; }
+.pt.dim { fill: var(--dot-dim); }
+.pt.team { fill: var(--ink-2); }
+.pt.sel { fill: var(--accent); }
+.pt.hover { stroke: var(--ink); stroke-width: 2; }
+.arw { fill: none; stroke: var(--arrow); stroke-width: 1.3; }
+.arw.strong { stroke: var(--arrow-strong); stroke-width: 2.2; }
+.arw.dim { opacity: .12; }
+.arw.sel { stroke: var(--accent); stroke-width: 2.6; opacity: 1; }
+.mk-normal { fill: var(--arrow); }
+.mk-strong { fill: var(--arrow-strong); }
+.mk-sel { fill: var(--accent); }
+.plabel { fill: var(--ink); font-size: 11.5px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.ctx-label { fill: var(--muted); font-size: 10.5px; paint-order: stroke; stroke: var(--surface); stroke-width: 3px; pointer-events: none; }
+.tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--ink);
+  color: var(--surface);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 240px;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgb(0 0 0 / .18);
+}
+.tip b { font-size: 13px; }
+.tip .m { font-family: var(--font-mono); font-size: 11px; opacity: .8; }
+
+/* ---------- panel ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.panel h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 30px;
+  line-height: 1;
+  margin: 0;
+  text-wrap: balance;
+}
+.panel .mgr { font-size: 16px; font-weight: 600; margin-top: 2px; }
+.meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.callout {
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+}
+.callout .big { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.gauge { position: relative; height: 8px; border-radius: 4px; background: var(--band); }
+.gauge .p95 { position: absolute; top: -3px; bottom: -3px; width: 1.5px; background: var(--ink-2); }
+.gauge .val { position: absolute; top: -3px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+.gauge-scale { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--ink-2); }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--arrow-strong); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-size: 13px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 12.5px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.fp { display: grid; gap: 10px; }
+.fp h3 { margin: 0; font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
+.fp-note { font-size: 11.5px; color: var(--muted); margin: 0; }
+.fp-group { display: grid; gap: 3px; }
+.fp-group > span { font-size: 11px; color: var(--ink-2); font-weight: 600; margin-top: 2px; }
+.fp-row { display: grid; grid-template-columns: minmax(0, 1fr) 96px 52px; gap: 8px; align-items: center; font-size: 12px; }
+.fp-row .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
+.fp-row .v { font-family: var(--font-mono); font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; }
+.bar { position: relative; height: 12px; }
+.bar::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--line); }
+.bar .b { position: absolute; top: 2px; height: 8px; border-radius: 2px; }
+.bar .b.pos { background: var(--pos); }
+.bar .b.neg { background: var(--neg); }
+.bar .tick { position: absolute; top: -1px; width: 2px; height: 14px; margin-left: -1px; background: var(--accent); }
+
+/* ---------- ranked list ---------- */
+.ranked { display: grid; gap: 10px; }
+.ranked-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; }
+.ranked h2 { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0; font-weight: 700; }
+.ranked-head p { margin: 0; color: var(--muted); font-size: 12.5px; max-width: 60ch; }
+.rlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 0 24px; }
+.ritem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 44px;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 12.5px;
+}
+.ritem:hover { background: var(--surface); }
+.ritem[aria-current="true"] { background: var(--accent-soft); }
+.ritem .lab { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ritem .lab small { color: var(--muted); font-size: 11px; }
+.ritem .pct { font-family: var(--font-mono); font-size: 11px; text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.mini { position: relative; height: 10px; }
+.mini .band { position: absolute; top: 3px; height: 4px; background: var(--band); border-radius: 2px; }
+.mini .dot { position: absolute; top: 0; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--arrow-strong); }
+.mini .dot.out { background: var(--accent); }
+
+footer { font-size: 12px; color: var(--muted); display: grid; gap: 6px; max-width: 90ch; border-top: 1px solid var(--line); padding-top: 14px; }
+footer p { margin: 0; }
+footer a { color: inherit; }
+
+@media (max-width: 520px) {
+  .wrap { padding-inline: 16px; }
+  select, input[type="search"] { width: 100%; }
+  .control { flex: 1 1 100%; }
+  .fp-row { grid-template-columns: minmax(0, 1fr) 80px 48px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">2015/16 · Premier League · La Liga · Serie A · Ligue 1 · StatsBomb event data</div>
+    <h1>Manager Style Map</h1>
+    <p class="lede">Each dot is one manager's spell at one club, placed by how the team played: 14 opponent-adjusted measures of passing, pressing and build-up. Arrows follow the 33 mid-season manager changes. Most arrows are short, and most new managers inherit the style as well as the squad.</p>
+    <div class="facts" id="facts"></div>
+  </header>
+
+  <div class="controls" role="group" aria-label="Map controls">
+    <div class="control">
+      <span class="lbl" id="lg-label">League</span>
+      <div class="seg" id="league" role="group" aria-labelledby="lg-label"></div>
+    </div>
+    <div class="control">
+      <label for="xsel">Across</label>
+      <select id="xsel"></select>
+    </div>
+    <div class="control">
+      <label for="ysel">Up</label>
+      <select id="ysel"></select>
+    </div>
+    <div class="control">
+      <span class="lbl" id="ar-label">Manager changes</span>
+      <div class="seg" id="arrows" role="group" aria-labelledby="ar-label">
+        <button type="button" data-v="all" aria-pressed="true">All</button>
+        <button type="button" data-v="strong" aria-pressed="false">Above placebo range</button>
+        <button type="button" data-v="none" aria-pressed="false">Hide</button>
+      </div>
+    </div>
+    <div class="control">
+      <label for="find">Find a team</label>
+      <input type="search" id="find" list="teams" placeholder="e.g. Liverpool" autocomplete="off">
+      <datalist id="teams"></datalist>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="chart-card">
+      <div class="legend">
+        <span><i class="lg-dot"></i>Team–manager spell (6+ matches)</span>
+        <span><i class="lg-arrow"></i>Manager change</span>
+        <span><i class="lg-arrow strong"></i>Style moved more than 95% of placebo points</span>
+        <span><i class="lg-sel"></i>Selected</span>
+      </div>
+      <div id="chart"><div class="tip" id="tip" hidden></div></div>
+    </div>
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <section class="ranked">
+    <div class="ranked-head">
+      <h2>All 33 changes, ranked</h2>
+      <p>Style shift relative to normal in-season drift. The gray band is the 95% range at placebo points, where the manager did not change. Orange dots fall outside it.</p>
+    </div>
+    <div class="rlist" id="rlist"></div>
+  </section>
+
+  <footer>
+    <p><b>Method.</b> Metrics are adjusted per league for opponent and home advantage (<code>metric ~ team + opponent + home</code>). "PC1" and "PC2" are the first two principal components of the 14 spell averages. A change's style shift is the root-mean-square across metrics of (after − before) ÷ the metric's spread at placebo points, using up to 10 matches either side. Caretakers with ≤ 3 matches are skipped.</p>
+    <p>Data: <a href="https://github.com/statsbomb/open-data" target="_blank" rel="noopener">StatsBomb open data</a>. Code and full report: the <code>coach-style</code> project in the De-Zerbi-research repository.</p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="style_map_data.js"></script>
+<script>
+(function () {
+  const D = window.STYLE_DATA;
+  const METRIC = Object.fromEntries(D.metrics.map(m => [m.key, m.label]));
+  const spells = D.spells;
+  const byId = new Map(spells.map(s => [s.id, s]));
+  const changeTo = new Map(D.changes.map(c => [c.to, c]));
+  const changeFrom = new Map(D.changes.map(c => [c.from, c]));
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const SHORT = {
+    possession: "Possession", field_tilt: "Field tilt", passes_per_poss: "Passes per possession",
+    pass_length: "Pass length", long_ball_share: "Long balls", directness: "Directness",
+    gk_short_share: "Short goal kicks", cross_share: "Crossing", ppda: "PPDA (low = presses more)",
+    press_intensity: "Pressures per opp. pass", press_high_share: "Pressures in opp. half",
+    def_height: "Defensive action height", high_recoveries: "Final-third ball wins",
+    counter_shots: "Counter-attack shots"
+  };
+  const GROUPS = [
+    ["With the ball", ["possession", "field_tilt", "passes_per_poss", "pass_length", "long_ball_share", "directness", "gk_short_share", "cross_share"]],
+    ["Without the ball", ["ppda", "press_intensity", "press_high_share", "def_height", "high_recoveries"]],
+    ["Transition", ["counter_shots"]]
+  ];
+  const UNIT = {
+    possession: v => v.toFixed(1) + "%", field_tilt: v => v.toFixed(1) + "%",
+    passes_per_poss: v => v.toFixed(2), pass_length: v => v.toFixed(1) + " yd",
+    long_ball_share: v => v.toFixed(1) + "%", directness: v => v.toFixed(2),
+    gk_short_share: v => v.toFixed(0) + "%", cross_share: v => v.toFixed(1) + "%",
+    ppda: v => v.toFixed(1), press_intensity: v => v.toFixed(2),
+    press_high_share: v => v.toFixed(0) + "%", def_height: v => v.toFixed(1) + " yd",
+    high_recoveries: v => v.toFixed(1), counter_shots: v => v.toFixed(2)
+  };
+  const AXES = [
+    ["pc1", "Ball dominance (PC1)"],
+    ["pc2", "Direct, front-foot play (PC2)"],
+    ...D.metrics.map(m => [m.key, METRIC[m.key]])
+  ];
+  const AXIS_LABEL = Object.fromEntries(AXES);
+  const LEAGUES = ["All", "Premier League", "La Liga", "Serie A", "Ligue 1"];
+  const CONTEXT = ["Barcelona", "Leicester City", "Paris Saint-Germain", "Atlético Madrid", "West Bromwich Albion"];
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const surname = n => n.split(" / ")[0].trim().split(/\s+/).slice(-1)[0];
+  const sign = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(2);
+  const fmtDate = d => new Date(d + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  const isStrong = c => c.shift_norm > c.placebo_p95;
+  const ordinal = p => { if (p > 99 && p < 100) return p.toFixed(1) + "th"; const n = Math.round(p); const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+
+  const initial = spells.find(s => s.team === "AS Roma" && /Spalletti/.test(s.manager)) || spells[0];
+  const state = { league: "All", x: "pc1", y: "pc2", arrows: "all", selected: initial.id, hover: null };
+
+  // ---------- header facts ----------
+  const S = D.summary;
+  document.getElementById("facts").innerHTML = [
+    [S.n_changes, `mid-season manager changes across ${S.matches.toLocaleString()} matches`],
+    [S.style_ratio + "×", "how far style moves at a change, compared with normal drift"],
+    [`${sign(S.ppg_naive)} → ${sign(S.ppg_beyond_rtm)}`, "points-per-game bounce, before and after allowing for regression to the mean"]
+  ].map(([b, t]) => `<div class="fact"><b>${esc(b)}</b><span>${esc(t)}</span></div>`).join("");
+
+  // ---------- controls ----------
+  const leagueEl = document.getElementById("league");
+  leagueEl.innerHTML = LEAGUES.map(l => `<button type="button" data-v="${esc(l)}" aria-pressed="${l === state.league}">${esc(l === "Premier League" ? "Premier Lg" : l)}</button>`).join("");
+  leagueEl.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.league = b.dataset.v;
+    leagueEl.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    render(true); renderList();
+  });
+  const arrowsEl = document.getElementById("arrows");
+  arrowsEl.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.arrows = b.dataset.v;
+    arrowsEl.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+    render(true);
+  });
+  for (const [id, key] of [["xsel", "x"], ["ysel", "y"]]) {
+    const sel = document.getElementById(id);
+    sel.innerHTML = AXES.map(([k, l]) => `<option value="${k}"${k === state[key] ? " selected" : ""}>${esc(l)}</option>`).join("");
+    sel.addEventListener("change", () => { state[key] = sel.value; render(true); });
+  }
+  const teams = [...new Set(spells.map(s => s.team))].sort((a, b) => a.localeCompare(b));
+  document.getElementById("teams").innerHTML = teams.map(t => `<option value="${esc(t)}"></option>`).join("");
+  const find = document.getElementById("find");
+  find.addEventListener("change", () => {
+    const t = teams.find(x => x.toLowerCase() === find.value.trim().toLowerCase());
+    if (!t) return;
+    const own = spells.filter(s => s.team === t).sort((a, b) => a.start.localeCompare(b.start));
+    select(own[own.length - 1].id);
+  });
+
+  // ---------- chart ----------
+  const chartEl = document.getElementById("chart");
+  const tip = document.getElementById("tip");
+  const svg = d3.select(chartEl).append("svg").attr("role", "img")
+    .attr("aria-label", "Scatter plot of team–manager spells by playing style, with arrows for manager changes");
+  const defs = svg.append("defs");
+  for (const k of ["normal", "strong", "sel"]) {
+    defs.append("marker").attr("id", "mk-" + k).attr("viewBox", "0 0 10 10").attr("refX", 8).attr("refY", 5)
+      .attr("markerWidth", k === "normal" ? 7 : 5.5).attr("markerHeight", k === "normal" ? 7 : 5.5)
+      .attr("orient", "auto-start-reverse").attr("markerUnits", "strokeWidth")
+      .append("path").attr("d", "M0,0 L10,5 L0,10 z").attr("class", "mk-" + k);
+  }
+  const gGridX = svg.append("g").attr("class", "gridline");
+  const gGridY = svg.append("g").attr("class", "gridline");
+  const gAxX = svg.append("g").attr("class", "axis");
+  const gAxY = svg.append("g").attr("class", "axis");
+  const zeroX = svg.append("line").attr("class", "zero");
+  const zeroY = svg.append("line").attr("class", "zero");
+  const gArrows = svg.append("g");
+  const gPts = svg.append("g");
+  const gLabels = svg.append("g");
+  const titleX = svg.append("text").attr("class", "axis-title").attr("text-anchor", "end");
+  const titleY = svg.append("text").attr("class", "axis-title");
+  let x, y, delaunay, visible = [];
+
+  const val = (s, k) => (k === "pc1" || k === "pc2") ? s[k] : s.adj[k];
+  const inLeague = s => state.league === "All" || s.league === state.league;
+
+  function render(animate) {
+    const W = chartEl.clientWidth, H = chartEl.clientHeight;
+    const narrow = W < 520;
+    const m = { top: 14, right: 14, bottom: 44, left: narrow ? 40 : 50 };
+    const t = d3.transition().duration(animate && !reduced ? 550 : 0).ease(d3.easeCubicOut);
+    const ex = d3.extent(spells, s => val(s, state.x)), ey = d3.extent(spells, s => val(s, state.y));
+    const padX = (ex[1] - ex[0]) * .05, padY = (ey[1] - ey[0]) * .06;
+    x = d3.scaleLinear().domain([ex[0] - padX, ex[1] + padX]).range([m.left, W - m.right]).nice();
+    y = d3.scaleLinear().domain([ey[0] - padY, ey[1] + padY]).range([H - m.bottom, m.top]).nice();
+
+    const tx = narrow ? 5 : 8, ty = narrow ? 5 : 7;
+    gAxX.attr("transform", `translate(0,${H - m.bottom})`).transition(t).call(d3.axisBottom(x).ticks(tx).tickSizeOuter(0));
+    gAxY.attr("transform", `translate(${m.left},0)`).transition(t).call(d3.axisLeft(y).ticks(ty).tickSizeOuter(0));
+    gGridX.attr("transform", `translate(0,${H - m.bottom})`).transition(t).call(d3.axisBottom(x).ticks(tx).tickSize(-(H - m.top - m.bottom)).tickFormat(""));
+    gGridY.attr("transform", `translate(${m.left},0)`).transition(t).call(d3.axisLeft(y).ticks(ty).tickSize(-(W - m.left - m.right)).tickFormat(""));
+    const showZero = (k) => k === "pc1" || k === "pc2";
+    zeroX.transition(t).attr("x1", x(0)).attr("x2", x(0)).attr("y1", m.top).attr("y2", H - m.bottom).attr("opacity", showZero(state.x) ? 1 : 0);
+    zeroY.transition(t).attr("y1", y(0)).attr("y2", y(0)).attr("x1", m.left).attr("x2", W - m.right).attr("opacity", showZero(state.y) ? 1 : 0);
+    titleX.attr("x", W - m.right).attr("y", H - 8).text(AXIS_LABEL[state.x] + " →");
+    titleY.attr("x", m.left + 6).attr("y", m.top + 4).attr("dy", ".7em").text("↑ " + AXIS_LABEL[state.y]);
+
+    const sel = byId.get(state.selected);
+    const hoverTeam = state.hover != null ? byId.get(state.hover).team : null;
+
+    // arrows
+    const arrows = D.changes.filter(c => state.arrows === "all" || (state.arrows === "strong" && isStrong(c)) || c.to === state.selected || c.from === state.selected);
+    const r = 5.5;
+    const path = c => {
+      const a = byId.get(c.from), b = byId.get(c.to);
+      const x1 = x(val(a, state.x)), y1 = y(val(a, state.y)), x2 = x(val(b, state.x)), y2 = y(val(b, state.y));
+      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, s1 = Math.min(r + 1, L / 3), s2 = Math.min(r + 3, L / 3);
+      return `M${x1 + dx / L * s1},${y1 + dy / L * s1}L${x2 - dx / L * s2},${y2 - dy / L * s2}`;
+    };
+    const arrowClass = c => {
+      const isSel = c.to === state.selected || c.from === state.selected;
+      const dim = !isSel && !(inLeague(byId.get(c.to))) ;
+      return "arw" + (isSel ? " sel" : isStrong(c) ? " strong" : "") + (dim ? " dim" : "");
+    };
+    const marker = c => (c.to === state.selected || c.from === state.selected) ? "url(#mk-sel)" : isStrong(c) ? "url(#mk-strong)" : "url(#mk-normal)";
+    gArrows.selectAll("path").data(arrows, c => c.label).join(
+      enter => enter.append("path").attr("d", path).attr("opacity", 0).call(e => e.transition(t).attr("opacity", 1)),
+      update => update,
+      exit => exit.transition(t).attr("opacity", 0).remove()
+    ).attr("class", arrowClass).attr("marker-end", marker).transition(t).attr("d", path);
+    gArrows.selectAll("path.sel").raise();
+
+    // points: selected team and hovered team on top
+    const order = [...spells].sort((a, b) => (a.team === sel.team) - (b.team === sel.team));
+    const ptClass = s => "pt" + (s.id === state.selected ? " sel" : s.team === sel.team ? " team" : "")
+      + (!inLeague(s) && s.team !== sel.team ? " dim" : "") + (s.team === hoverTeam ? " hover" : "");
+    gPts.selectAll("circle").data(order, s => s.id).join(
+      enter => enter.append("circle").attr("r", r).attr("cx", s => x(val(s, state.x))).attr("cy", s => y(val(s, state.y)))
+        .attr("tabindex", 0).attr("role", "button")
+        .attr("aria-label", s => `${s.team}, ${s.manager}`)
+        .on("keydown", (e, s) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(s.id); } })
+        .on("focus", (e, s) => showTip(s)).on("blur", hideTip)
+    ).order().attr("class", ptClass).transition(t)
+      .attr("cx", s => x(val(s, state.x))).attr("cy", s => y(val(s, state.y)));
+
+    // labels: the selected team's managers, plus a few reference clubs
+    const lab = spells.filter(s => s.team === sel.team);
+    const near = (a, b) => Math.hypot(x(val(a, state.x)) - x(val(b, state.x)), y(val(a, state.y)) - y(val(b, state.y))) < 70;
+    const ctx = spells.filter(s => CONTEXT.includes(s.team) && s.team !== sel.team && inLeague(s)
+      && !spells.some(o => o.team === sel.team && near(o, s)));
+    const labelData = [
+      ...lab.map(s => ({ s, text: `${s.team === sel.team && lab.length > 1 ? surname(s.manager) : s.team + " · " + surname(s.manager)}`, cls: "plabel" })),
+      ...(narrow ? [] : ctx.map(s => ({ s, text: s.team, cls: "ctx-label" })))
+    ];
+    const lx = d => x(val(d.s, state.x)), ly = d => y(val(d.s, state.y));
+    const anchorRight = d => lx(d) > W - 140;
+    gLabels.selectAll("text").data(labelData, d => d.s.id + d.cls).join("text")
+      .attr("class", d => d.cls).text(d => d.text)
+      .attr("text-anchor", d => anchorRight(d) ? "end" : "start")
+      .transition(t)
+      .attr("x", d => lx(d) + (anchorRight(d) ? -9 : 9)).attr("y", d => ly(d) + 4);
+
+    visible = order;
+    delaunay = d3.Delaunay.from(order, s => x(val(s, state.x)), s => y(val(s, state.y)));
+  }
+
+  function nearest(ev) {
+    const [px, py] = d3.pointer(ev, svg.node());
+    const i = delaunay.find(px, py);
+    const s = visible[i];
+    if (!s) return null;
+    const d = Math.hypot(x(val(s, state.x)) - px, y(val(s, state.y)) - py);
+    return d < 28 ? s : null;
+  }
+  function showTip(s) {
+    const c = changeTo.get(s.id);
+    tip.innerHTML = `<b>${esc(s.team)}</b><br>${esc(s.manager)}<br><span class="m">${esc(s.league)} · ${s.n} matches · ${s.ppg.toFixed(2)} ppg</span>`
+      + (c ? `<br><span class="m">Took over from ${esc(surname(c.old))}: shift ${c.shift_norm.toFixed(2)}× drift</span>` : "");
+    tip.hidden = false;
+    const W = chartEl.clientWidth;
+    const px = x(val(s, state.x)), py = y(val(s, state.y));
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = px + 14, top = py - th - 10;
+    if (left + tw > W) left = px - tw - 14;
+    if (top < 0) top = py + 14;
+    tip.style.left = Math.max(0, left) + "px";
+    tip.style.top = top + "px";
+  }
+  function hideTip() { tip.hidden = true; }
+
+  svg.on("pointermove", ev => {
+    const s = nearest(ev);
+    const id = s ? s.id : null;
+    svg.style("cursor", s ? "pointer" : "default");
+    if (id !== state.hover) { state.hover = id; gPts.selectAll("circle").classed("hover", d => s && d.team === s.team); }
+    if (s) showTip(s); else hideTip();
+  }).on("pointerleave", () => {
+    state.hover = null; hideTip();
+    gPts.selectAll("circle").classed("hover", false);
+  }).on("click", ev => { const s = nearest(ev); if (s) select(s.id); });
+
+  // ---------- panel ----------
+  const panel = document.getElementById("panel");
+  function barRow(key, s, prev) {
+    const z = s.z[key], clamp = v => Math.max(-3, Math.min(3, v));
+    const w = Math.abs(clamp(z)) / 3 * 50;
+    const left = z >= 0 ? 50 : 50 - w;
+    const tick = prev && prev.z[key] != null ? `<span class="tick" style="left:${50 + clamp(prev.z[key]) / 3 * 50}%" title="${esc(surname(prev.manager))}: ${prev.z[key].toFixed(2)} SD"></span>` : "";
+    return `<div class="fp-row"><span class="name" title="${esc(METRIC[key])}">${esc(SHORT[key])}</span>`
+      + `<span class="bar" aria-label="${z.toFixed(2)} SD from average"><span class="b ${z >= 0 ? "pos" : "neg"}" style="left:${left}%;width:${w}%"></span>${tick}</span>`
+      + `<span class="v">${s.adj[key] == null ? "–" : UNIT[key](s.adj[key])}</span></div>`;
+  }
+  function renderPanel() {
+    const s = byId.get(state.selected);
+    const cin = changeTo.get(s.id), cout = changeFrom.get(s.id);
+    const prev = cin ? byId.get(cin.from) : null;
+    let html = `<div><h2>${esc(s.team)}</h2><div class="mgr">${esc(s.manager)}</div>`
+      + `<div class="meta">${esc(s.league)} · ${s.n} matches · ${fmtDate(s.start)} – ${fmtDate(s.end)}</div></div>`
+      + `<dl class="kv"><dt>Points per game</dt><dd>${s.ppg.toFixed(2)}</dd><dt>Non-penalty xG difference / game</dt><dd>${sign(s.xgd)}</dd></dl>`;
+    if (cin) {
+      const pos = Math.min(100, cin.shift_norm / 2.5 * 100), p95 = cin.placebo_p95 / 2.5 * 100;
+      html += `<div class="callout">
+        <div>Took over from <button class="linkbtn" data-go="${cin.from}">${esc(cin.old)}</button> on ${fmtDate(cin.date)}${cin.caretaker_matches ? ` (after ${cin.caretaker_matches} caretaker match${cin.caretaker_matches > 1 ? "es" : ""})` : ""}.</div>
+        <div><span class="big">${cin.shift_norm.toFixed(2)}×</span> normal drift · ${ordinal(cin.percentile)} percentile of placebo points</div>
+        <div><div class="gauge" aria-hidden="true"><span class="p95" style="left:${p95}%"></span><span class="val" style="left:${pos}%"></span></div>
+        <div class="gauge-scale"><span>0</span><span>95% of placebos below the line</span><span>2.5×</span></div></div>
+        <div>Points per game, ${cin.window} matches before → after: <b>${cin.ppg_pre.toFixed(2)} → ${cin.ppg_post.toFixed(2)}</b>. Beyond regression to the mean: <b>${sign(cin.ppg_beyond_rtm)}</b> ppg, ${sign(cin.xgd_beyond_rtm)} xGD.</div>
+      </div>`;
+    }
+    if (cout) {
+      html += `<div style="font-size:13px">Replaced by <button class="linkbtn" data-go="${cout.to}">${esc(cout.new)}</button> on ${fmtDate(cout.date)}.</div>`;
+    }
+    html += `<div class="fp"><h3>Style profile</h3>
+      <p class="fp-note">Bars: between-team SDs from the average side (±3 shown). Values: opponent-adjusted averages.${prev ? ` <span style="color:var(--accent)">▍</span> ${esc(surname(prev.manager))}'s spell, for comparison.` : ""}</p>
+      ${GROUPS.map(([g, keys]) => `<div class="fp-group"><span>${g}</span>${keys.map(k => barRow(k, s, prev)).join("")}</div>`).join("")}
+    </div>`;
+    panel.innerHTML = html;
+  }
+  panel.addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (b) select(+b.dataset.go); });
+
+  // ---------- ranked list ----------
+  const rlist = document.getElementById("rlist");
+  function renderList() {
+    const max = 2.4;
+    const rows = D.changes.filter(c => state.league === "All" || c.league === state.league)
+      .sort((a, b) => b.shift_norm - a.shift_norm);
+    rlist.innerHTML = rows.map(c => `<button type="button" class="ritem" data-go="${c.to}" aria-current="${c.to === state.selected}">
+        <span class="lab">${esc(c.team)} <small>${esc(surname(c.old))} → ${esc(surname(c.new))}</small></span>
+        <span class="mini" aria-hidden="true"><span class="band" style="left:0;width:${c.placebo_p95 / max * 100}%"></span><span class="dot${isStrong(c) ? " out" : ""}" style="left:${Math.min(100, c.shift_norm / max * 100)}%"></span></span>
+        <span class="pct">${c.shift_norm.toFixed(2)}×</span>
+      </button>`).join("");
+  }
+  rlist.addEventListener("click", e => {
+    const b = e.target.closest("[data-go]"); if (!b) return;
+    select(+b.dataset.go);
+    chartEl.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
+  });
+
+  function select(id) {
+    state.selected = id;
+    const s = byId.get(id);
+    if (state.league !== "All" && s.league !== state.league) {
+      state.league = "All";
+      leagueEl.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.v === "All"));
+      renderList();
+    }
+    render(true); renderPanel();
+    rlist.querySelectorAll(".ritem").forEach(b => b.setAttribute("aria-current", +b.dataset.go === id));
+  }
+
+  render(false); renderPanel(); renderList();
+  let raf;
+  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => render(false)); }).observe(chartEl);
+})();
+</script>
